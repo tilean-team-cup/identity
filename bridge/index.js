@@ -223,7 +223,7 @@ app.get('/naf/oidc/auth', (req, res) => {
 
 // Keycloak scambia il code per un JWT id_token
 app.post('/naf/oidc/token', async (req, res) => {
-  const { code } = req.body;
+  const { code, client_id } = req.body;
   if (!code) return res.status(400).json({ error: 'invalid_request' });
 
   const entry = consumeState(code);
@@ -243,7 +243,7 @@ app.post('/naf/oidc/token', async (req, res) => {
     })
       .setProtectedHeader({ alg: 'RS256', kid: 'naf-bridge-1' })
       .setIssuer(BRIDGE_URL)
-      .setAudience(KC_ADMIN_CLIENT_ID)
+      .setAudience(client_id || KC_ADMIN_CLIENT_ID)
       .setIssuedAt(now)
       .setExpirationTime('1h')
       .sign(privateKey);
