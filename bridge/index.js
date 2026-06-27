@@ -51,24 +51,37 @@ async function getAdminToken() {
   return data.access_token;
 }
 
-// Aggiorna attributi utente Keycloak
+// Aggiorna attributi utente Keycloak preservando i dati esistenti
 async function updateKeycloakUser(userId, nafId, nafName) {
   const token = await getAdminToken();
-  const res = await fetch(`${KC_URL}/admin/realms/${KC_REALM}/users/${userId}`, {
+
+  // Legge il profilo esistente
+  const getRes = await fetch(`${KC_URL}/admin/realms/${KC_REALM}/users/${userId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!getRes.ok) throw new Error(`Keycloak get user error: ${getRes.status}`);
+  const user = await getRes.json();
+
+  // Merge degli attributi NAF sul profilo esistente
+  const updatedUser = {
+    ...user,
+    attributes: {
+      ...user.attributes,
+      naf_id: [String(nafId)],
+      naf_name: [nafName],
+      naf_verified: ['true'],
+    },
+  };
+
+  const putRes = await fetch(`${KC_URL}/admin/realms/${KC_REALM}/users/${userId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({
-      attributes: {
-        naf_id: [String(nafId)],
-        naf_name: [nafName],
-        naf_verified: ['true'],
-      },
-    }),
+    body: JSON.stringify(updatedUser),
   });
-  if (!res.ok) throw new Error(`Keycloak update error: ${res.status}`);
+  if (!putRes.ok) throw new Error(`Keycloak update error: ${putRes.status}`);
 }
 
 // Verifica token Keycloak e restituisce il subject (user ID)
