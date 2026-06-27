@@ -1,7 +1,7 @@
 const express = require('express');
 const fetch = require('node-fetch');
 const crypto = require('crypto');
-const { SignJWT, exportJWK, generateKeyPair } = require('jose');
+const { SignJWT, exportJWK, generateKeyPair, importPKCS8, importSPKI } = require('jose');
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -20,13 +20,20 @@ const {
   KC_ADMIN_CLIENT_SECRET,
 } = process.env;
 
-// Chiave RSA per firmare i JWT OIDC — generata all'avvio
+// Chiave RSA per firmare i JWT OIDC — caricata da env o generata all'avvio
 let privateKey, publicJwk;
 (async () => {
-  const { privateKey: priv, publicKey: pub } = await generateKeyPair('RS256');
-  privateKey = priv;
-  publicJwk = { ...(await exportJWK(pub)), use: 'sig', alg: 'RS256', kid: 'naf-bridge-1' };
-  console.log('Chiave RSA generata');
+  if (process.env.BRIDGE_PRIVATE_KEY && process.env.BRIDGE_PUBLIC_KEY) {
+    privateKey = await importPKCS8(process.env.BRIDGE_PRIVATE_KEY, 'RS256');
+    const pub = await importSPKI(process.env.BRIDGE_PUBLIC_KEY, 'RS256');
+    publicJwk = { ...(await exportJWK(pub)), use: 'sig', alg: 'RS256', kid: 'naf-bridge-1' };
+    console.log('Chiave RSA caricata da env');
+  } else {
+    const { privateKey: priv, publicKey: pub } = await generateKeyPair('RS256');
+    privateKey = priv;
+    publicJwk = { ...(await exportJWK(pub)), use: 'sig', alg: 'RS256', kid: 'naf-bridge-1' };
+    console.log('Chiave RSA generata (non persistente — aggiungere BRIDGE_PRIVATE_KEY e BRIDGE_PUBLIC_KEY al .env)');
+  }
 })();
 
 // Mappa stati pendenti — TTL 10 minuti
