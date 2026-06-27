@@ -239,6 +239,9 @@ app.post('/naf/oidc/token', async (req, res) => {
   }
 
   try {
+    const accessToken = crypto.randomBytes(16).toString('hex');
+    pending.set(`access_${accessToken}`, { nafId: entry.nafId, nafName: entry.nafName, ts: Date.now() });
+
     const now = Math.floor(Date.now() / 1000);
     const idToken = await new SignJWT({
       sub: String(entry.nafId),
@@ -256,7 +259,7 @@ app.post('/naf/oidc/token', async (req, res) => {
       .sign(privateKey);
 
     res.json({
-      access_token: crypto.randomBytes(16).toString('hex'),
+      access_token: accessToken,
       token_type: 'Bearer',
       id_token: idToken,
       expires_in: 3600,
@@ -267,9 +270,23 @@ app.post('/naf/oidc/token', async (req, res) => {
   }
 });
 
-// Userinfo endpoint (richiesto da Keycloak dopo il token)
+// Userinfo endpoint — Keycloak chiama questo con l'access token
 app.get('/naf/oidc/userinfo', (req, res) => {
-  res.status(401).json({ error: 'not_supported' });
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+  const accessToken = auth.slice(7);
+  const entry = pending.get(`access_${accessToken}`);
+  if (!entry) return res.status(401).json({ error: 'invalid_token' });
+
+  res.json({
+    sub: String(entry.nafId),
+    name: entry.nafName,
+    naf_id: String(entry.nafId),
+    naf_name: entry.nafName,
+    naf_verified: 'true',
+  });
 });
 
 // ─── Callback NAF unificata ───────────────────────────────────────────────────
