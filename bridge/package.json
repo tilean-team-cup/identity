@@ -1,0 +1,14 @@
+{
+  "name": "naf-bridge",
+  "version": "1.0.0",
+  "description": "Bridge OAuth2 tra Keycloak e NAF member site",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^2.7.0",
+    "crypto": "^1.0.1"
+  }
+}
