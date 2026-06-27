@@ -79,6 +79,8 @@ services:
       KC_REALM: tilea
       KC_ADMIN_CLIENT_ID: naf-bridge
       KC_ADMIN_CLIENT_SECRET: ${KC_BRIDGE_CLIENT_SECRET}
+      BRIDGE_PRIVATE_KEY: ${BRIDGE_PRIVATE_KEY}
+      BRIDGE_PUBLIC_KEY: ${BRIDGE_PUBLIC_KEY}
     networks:
       - keycloak-net
     ports:
