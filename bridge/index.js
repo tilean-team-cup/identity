@@ -132,7 +132,7 @@ app.get('/naf/callback', async (req, res) => {
 
   if (error) {
     console.error('Errore callback NAF:', error);
-    return res.redirect(`https://id.tilea.net/realms/${KC_REALM}/account?naf_error=access_denied`);
+    return res.redirect(`https://forum.tilea.net/my/preferences/account?naf_error=access_denied`);
   }
 
   if (!code || !state) return res.status(400).send('Parametri mancanti');
@@ -167,10 +167,10 @@ app.get('/naf/callback', async (req, res) => {
     await updateKeycloakUser(keycloakUserId, nafUser.id, nafUser.name);
 
     console.log(`NAF collegato: KC user ${keycloakUserId} → NAF #${nafUser.id} (${nafUser.name})`);
-    res.redirect(`https://id.tilea.net/realms/${KC_REALM}/account?naf_linked=true`);
+    res.redirect(`https://forum.tilea.net/my/preferences/account?naf_linked=true`);
   } catch (err) {
     console.error('Errore /naf/callback:', err.message);
-    res.redirect(`https://id.tilea.net/realms/${KC_REALM}/account?naf_error=server_error`);
+    res.redirect(`https://forum.tilea.net/my/preferences/account?naf_error=server_error`);
   }
 });
 
