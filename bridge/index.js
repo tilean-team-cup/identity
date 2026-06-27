@@ -12,6 +12,7 @@ const {
   NAF_CLIENT_SECRET,
   NAF_REDIRECT_URI,
   KC_URL,
+  KC_PUBLIC_URL,
   KC_REALM,
   KC_ADMIN_CLIENT_ID,
   KC_ADMIN_CLIENT_SECRET,
@@ -174,7 +175,7 @@ app.get('/naf/link', (req, res) => {
     state,
   });
 
-  res.redirect(`${KC_URL}/realms/${KC_REALM}/protocol/openid-connect/auth?${params}`);
+  res.redirect(`${KC_PUBLIC_URL}/realms/${KC_REALM}/protocol/openid-connect/auth?${params}`);
 });
 
 // GET /naf/link/callback

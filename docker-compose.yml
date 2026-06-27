@@ -75,6 +75,7 @@ services:
       NAF_CLIENT_SECRET: ${NAF_CLIENT_SECRET}
       NAF_REDIRECT_URI: ${NAF_REDIRECT_URI}
       KC_URL: http://keycloak:8080
+      KC_PUBLIC_URL: https://id.tilea.net
       KC_REALM: tilea
       KC_ADMIN_CLIENT_ID: naf-bridge
       KC_ADMIN_CLIENT_SECRET: ${KC_BRIDGE_CLIENT_SECRET}
