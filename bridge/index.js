@@ -168,7 +168,7 @@ app.get('/naf/link/callback', async (req, res) => {
     const tokenData = await tokenRes.json();
 
     const keycloakUserId = await introspectToken(tokenData.access_token);
-    const nafState = storeState('link', { keycloakUserId });
+    const nafState = storeState('link', { type: 'link', keycloakUserId });
 
     const nafParams = new URLSearchParams({
       client_id: NAF_CLIENT_ID,
@@ -210,7 +210,7 @@ app.get('/naf/oidc/auth', (req, res) => {
   const { redirect_uri, state, nonce } = req.query;
   if (!redirect_uri) return res.status(400).send('redirect_uri mancante');
 
-  const nafState = storeState('nafoidc', { kcRedirectUri: redirect_uri, kcState: state, kcNonce: nonce });
+  const nafState = storeState('nafoidc', { type: 'nafoidc', kcRedirectUri: redirect_uri, kcState: state, kcNonce: nonce });
 
   const params = new URLSearchParams({
     client_id: NAF_CLIENT_ID,
@@ -318,7 +318,7 @@ app.get('/naf/start', async (req, res) => {
   if (!token) return res.status(400).send('Token mancante');
   try {
     const keycloakUserId = await introspectToken(token);
-    const nafState = storeState('link', { keycloakUserId });
+    const nafState = storeState('link', { type: 'link', keycloakUserId });
     const params = new URLSearchParams({
       client_id: NAF_CLIENT_ID,
       redirect_uri: NAF_REDIRECT_URI,
