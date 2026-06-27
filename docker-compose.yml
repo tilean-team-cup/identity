@@ -72,7 +72,7 @@ services:
       NAF_BASE_URL: https://member.thenaf.net
       NAF_CLIENT_ID: ${NAF_CLIENT_ID}
       NAF_CLIENT_SECRET: ${NAF_CLIENT_SECRET}
-      NAF_REDIRECT_URI: https://id.tilea.net/naf/callback
+      NAF_REDIRECT_URI: ${NAF_REDIRECT_URI}
       KC_URL: http://keycloak:8080
       KC_REALM: tilea
       KC_ADMIN_CLIENT_ID: naf-bridge
