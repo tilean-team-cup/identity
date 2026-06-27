@@ -24,8 +24,10 @@ const {
 let privateKey, publicJwk;
 (async () => {
   if (process.env.BRIDGE_PRIVATE_KEY && process.env.BRIDGE_PUBLIC_KEY) {
-    privateKey = await importPKCS8(process.env.BRIDGE_PRIVATE_KEY, 'RS256');
-    const pub = await importSPKI(process.env.BRIDGE_PUBLIC_KEY, 'RS256');
+    const privPem = process.env.BRIDGE_PRIVATE_KEY.replace(/\\n/g, '\n');
+    const pubPem = process.env.BRIDGE_PUBLIC_KEY.replace(/\\n/g, '\n');
+    privateKey = await importPKCS8(privPem, 'RS256');
+    const pub = await importSPKI(pubPem, 'RS256');
     publicJwk = { ...(await exportJWK(pub)), use: 'sig', alg: 'RS256', kid: 'naf-bridge-1' };
     console.log('Chiave RSA caricata da env');
   } else {
