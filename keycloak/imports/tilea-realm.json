@@ -10,62 +10,16 @@
   "sslRequired": "external",
   "defaultSignatureAlgorithm": "RS256",
 
-  "userProfileConfig": {
-    "attributes": [
+  "components": {
+    "org.keycloak.userprofile.UserProfileProvider": [
       {
-        "name": "username",
-        "displayName": "${username}",
-        "validations": {
-          "length": { "min": 3, "max": 255 },
-          "username-prohibited-characters": {}
-        },
-        "permissions": { "view": ["admin","user"], "edit": ["admin","user"] }
-      },
-      {
-        "name": "email",
-        "displayName": "${email}",
-        "validations": { "email": {}, "length": { "max": 255 } },
-        "permissions": { "view": ["admin","user"], "edit": ["admin","user"] }
-      },
-      {
-        "name": "firstName",
-        "displayName": "${firstName}",
-        "permissions": { "view": ["admin","user"], "edit": ["admin","user"] }
-      },
-      {
-        "name": "lastName",
-        "displayName": "${lastName}",
-        "permissions": { "view": ["admin","user"], "edit": ["admin","user"] }
-      },
-      {
-        "name": "naf_id",
-        "displayName": "NAF Number",
-        "annotations": { "inputType": "text" },
-        "permissions": {
-          "view": ["admin","user"],
-          "edit": ["admin"]
-        },
-        "multivalued": false
-      },
-      {
-        "name": "naf_name",
-        "displayName": "NAF Coach Name",
-        "annotations": { "inputType": "text" },
-        "permissions": {
-          "view": ["admin","user"],
-          "edit": ["admin"]
-        },
-        "multivalued": false
-      },
-      {
-        "name": "naf_verified",
-        "displayName": "NAF Verified",
-        "annotations": { "inputType": "text" },
-        "permissions": {
-          "view": ["admin","user"],
-          "edit": ["admin"]
-        },
-        "multivalued": false
+        "providerId": "declarative-user-profile",
+        "subComponents": {},
+        "config": {
+          "kc.user.profile.config": [
+            "{\"attributes\":[{\"name\":\"username\",\"displayName\":\"${username}\",\"validations\":{\"length\":{\"min\":3,\"max\":255},\"username-prohibited-characters\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]}},{\"name\":\"email\",\"displayName\":\"${email}\",\"validations\":{\"email\":{},\"length\":{\"max\":255}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]}},{\"name\":\"firstName\",\"displayName\":\"${firstName}\",\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]}},{\"name\":\"lastName\",\"displayName\":\"${lastName}\",\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]}},{\"name\":\"naf_id\",\"displayName\":\"NAF Number\",\"annotations\":{\"inputType\":\"text\"},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\"]},\"multivalued\":false},{\"name\":\"naf_name\",\"displayName\":\"NAF Coach Name\",\"annotations\":{\"inputType\":\"text\"},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\"]},\"multivalued\":false},{\"name\":\"naf_verified\",\"displayName\":\"NAF Verified\",\"annotations\":{\"inputType\":\"text\"},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\"]},\"multivalued\":false}]}"
+          ]
+        }
       }
     ]
   },
