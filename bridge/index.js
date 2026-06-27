@@ -6,6 +6,7 @@ const app = express();
 
 const {
   PORT = 3000,
+  BRIDGE_URL,
   NAF_BASE_URL,
   NAF_CLIENT_ID,
   NAF_CLIENT_SECRET,
@@ -156,6 +157,71 @@ app.get('/naf/callback', async (req, res) => {
   } catch (err) {
     console.error('Errore /naf/callback:', err.message);
     res.redirect(`https://id.tilea.net/realms/${KC_REALM}/account?naf_error=server_error`);
+  }
+});
+
+// GET /naf/link
+// Avvia il flusso OIDC Keycloak per autenticare l'utente, poi lo manda su NAF
+app.get('/naf/link', (req, res) => {
+  const state = crypto.randomBytes(16).toString('hex');
+  pendingStates.set(`oidc_${state}`, { ts: Date.now() });
+
+  const params = new URLSearchParams({
+    client_id: KC_ADMIN_CLIENT_ID,
+    redirect_uri: `${BRIDGE_URL}/naf/link/callback`,
+    response_type: 'code',
+    scope: 'openid',
+    state,
+  });
+
+  res.redirect(`${KC_URL}/realms/${KC_REALM}/protocol/openid-connect/auth?${params}`);
+});
+
+// GET /naf/link/callback
+// Riceve il code OIDC da Keycloak, lo scambia per un token, avvia il flusso NAF
+app.get('/naf/link/callback', async (req, res) => {
+  const { code, state, error } = req.query;
+
+  if (error) return res.status(400).send(`Errore login Keycloak: ${error}`);
+  if (!code || !state) return res.status(400).send('Parametri mancanti');
+
+  const entry = pendingStates.get(`oidc_${state}`);
+  if (!entry || Date.now() - entry.ts > 10 * 60 * 1000) {
+    return res.status(400).send('State non valido o scaduto');
+  }
+  pendingStates.delete(`oidc_${state}`);
+
+  try {
+    // Scambia code OIDC per access token
+    const tokenRes = await fetch(`${KC_URL}/realms/${KC_REALM}/protocol/openid-connect/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: `${BRIDGE_URL}/naf/link/callback`,
+        client_id: KC_ADMIN_CLIENT_ID,
+        client_secret: KC_ADMIN_CLIENT_SECRET,
+      }),
+    });
+    if (!tokenRes.ok) throw new Error(`Token OIDC error: ${tokenRes.status}`);
+    const tokenData = await tokenRes.json();
+
+    // Ora abbiamo il token utente, avviamo il flusso NAF
+    const keycloakUserId = await introspectToken(tokenData.access_token);
+    const nafState = generateState(keycloakUserId);
+
+    const nafParams = new URLSearchParams({
+      client_id: NAF_CLIENT_ID,
+      redirect_uri: NAF_REDIRECT_URI,
+      response_type: 'code',
+      state: nafState,
+    });
+
+    res.redirect(`${NAF_BASE_URL}/index.php?module=NAF&type=oauth&${nafParams}`);
+  } catch (err) {
+    console.error('Errore /naf/link/callback:', err.message);
+    res.status(500).send('Errore interno');
   }
 });
 

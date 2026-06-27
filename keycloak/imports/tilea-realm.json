@@ -92,11 +92,15 @@
       "enabled": true,
       "protocol": "openid-connect",
       "publicClient": false,
-      "standardFlowEnabled": false,
+      "standardFlowEnabled": true,
       "serviceAccountsEnabled": true,
       "secret": "CAMBIA_QUESTO_SECRET_BRIDGE",
-      "redirectUris": [],
-      "webOrigins": []
+      "redirectUris": [
+        "https://naf-bridge.tilea.net/naf/link/callback"
+      ],
+      "webOrigins": [
+        "https://naf-bridge.tilea.net"
+      ]
     }
   ],
 

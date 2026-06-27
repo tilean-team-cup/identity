@@ -69,6 +69,7 @@ services:
       - keycloak
     environment:
       PORT: 3000
+      BRIDGE_URL: https://naf-bridge.tilea.net
       NAF_BASE_URL: https://member.thenaf.net
       NAF_CLIENT_ID: ${NAF_CLIENT_ID}
       NAF_CLIENT_SECRET: ${NAF_CLIENT_SECRET}
