@@ -1,0 +1,161 @@
+{
+  "realm": "tilea",
+  "displayName": "Tilea.net",
+  "enabled": true,
+  "registrationAllowed": false,
+  "resetPasswordAllowed": true,
+  "rememberMe": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "sslRequired": "external",
+  "defaultSignatureAlgorithm": "RS256",
+
+  "userProfileConfig": {
+    "attributes": [
+      {
+        "name": "username",
+        "displayName": "${username}",
+        "validations": {
+          "length": { "min": 3, "max": 255 },
+          "username-prohibited-characters": {}
+        },
+        "permissions": { "view": ["admin","user"], "edit": ["admin","user"] }
+      },
+      {
+        "name": "email",
+        "displayName": "${email}",
+        "validations": { "email": {}, "length": { "max": 255 } },
+        "permissions": { "view": ["admin","user"], "edit": ["admin","user"] }
+      },
+      {
+        "name": "firstName",
+        "displayName": "${firstName}",
+        "permissions": { "view": ["admin","user"], "edit": ["admin","user"] }
+      },
+      {
+        "name": "lastName",
+        "displayName": "${lastName}",
+        "permissions": { "view": ["admin","user"], "edit": ["admin","user"] }
+      },
+      {
+        "name": "naf_id",
+        "displayName": "NAF Number",
+        "annotations": { "inputType": "text" },
+        "permissions": {
+          "view": ["admin","user"],
+          "edit": ["admin"]
+        },
+        "multivalued": false
+      },
+      {
+        "name": "naf_name",
+        "displayName": "NAF Coach Name",
+        "annotations": { "inputType": "text" },
+        "permissions": {
+          "view": ["admin","user"],
+          "edit": ["admin"]
+        },
+        "multivalued": false
+      },
+      {
+        "name": "naf_verified",
+        "displayName": "NAF Verified",
+        "annotations": { "inputType": "text" },
+        "permissions": {
+          "view": ["admin","user"],
+          "edit": ["admin"]
+        },
+        "multivalued": false
+      }
+    ]
+  },
+
+  "clients": [
+    {
+      "clientId": "discourse",
+      "name": "Discourse Forum",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "secret": "CAMBIA_QUESTO_SECRET_DISCOURSE",
+      "redirectUris": [
+        "https://forum.tilea.net/auth/oidc/callback"
+      ],
+      "webOrigins": [
+        "https://forum.tilea.net"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "https://forum.tilea.net"
+      },
+      "protocolMappers": [
+        {
+          "name": "naf_id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "naf_id",
+            "claim.name": "naf_id",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "naf_name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "naf_name",
+            "claim.name": "naf_name",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "naf_verified",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "naf_verified",
+            "claim.name": "naf_verified",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "naf-bridge",
+      "name": "NAF Bridge Service",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "serviceAccountsEnabled": true,
+      "secret": "CAMBIA_QUESTO_SECRET_BRIDGE",
+      "redirectUris": [],
+      "webOrigins": []
+    }
+  ],
+
+  "roles": {
+    "realm": [
+      {
+        "name": "naf-member",
+        "description": "Utente con profilo NAF verificato"
+      },
+      {
+        "name": "forum-member",
+        "description": "Membro del forum Tilea"
+      }
+    ]
+  }
+}

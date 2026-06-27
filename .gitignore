@@ -1,0 +1,15 @@
+# Secrets — MAI committare
+.env
+
+# Node
+bridge/node_modules/
+bridge/dist/
+
+# Certificati
+*.pem
+*.key
+
+# Editor
+.DS_Store
+.idea/
+*.swp
