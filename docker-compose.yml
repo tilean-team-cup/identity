@@ -49,6 +49,16 @@ services:
     ports:
       - "127.0.0.1:8080:8080"
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - keycloak
+    networks:
+      - keycloak-net
+
   bridge:
     build:
       context: ./bridge
