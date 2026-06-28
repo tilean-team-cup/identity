@@ -247,7 +247,7 @@ app.post('/naf/oidc/token', async (req, res) => {
     const now = Math.floor(Date.now() / 1000);
     const idToken = await new SignJWT({
       sub: String(entry.nafId),
-      name: entry.nafName,
+      preferred_username: entry.nafName,
       naf_id: String(entry.nafId),
       naf_name: entry.nafName,
       naf_verified: 'true',
