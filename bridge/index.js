@@ -290,7 +290,7 @@ app.post('/naf/oidc/token', async (req, res) => {
 });
 
 // Userinfo endpoint — Keycloak chiama questo con l'access token
-app.get('/naf/oidc/userinfo', async (req, res) => {
+app.get('/naf/oidc/userinfo', (req, res) => {
   const auth = req.headers.authorization;
   if (!auth || !auth.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'unauthorized' });
@@ -301,30 +301,10 @@ app.get('/naf/oidc/userinfo', async (req, res) => {
 
   res.json({
     sub: String(entry.nafId),
-    preferred_username: entry.nafName,
+    name: entry.nafName,
     naf_id: String(entry.nafId),
     naf_name: entry.nafName,
     naf_verified: 'true',
-  });
-
-  // Aggiorna attributi NAF sull'utente Keycloak (async, non blocca la risposta)
-  setImmediate(async () => {
-    try {
-      await new Promise(r => setTimeout(r, 2000)); // attende che KC crei l'utente
-      const adminToken = await getAdminToken();
-      const searchRes = await fetch(
-        `${KC_URL}/admin/realms/${KC_REALM}/users?username=${encodeURIComponent(entry.nafName)}&exact=true`,
-        { headers: { Authorization: `Bearer ${adminToken}` } }
-      );
-      if (!searchRes.ok) return;
-      const users = await searchRes.json();
-      if (users.length === 0) return;
-      const userId = users[0].id;
-      await updateKeycloakUser(userId, entry.nafId, entry.nafName);
-      console.log(`Attributi NAF aggiornati per utente KC ${userId} (${entry.nafName})`);
-    } catch (e) {
-      console.warn('Aggiornamento attributi NAF fallito:', e.message);
-    }
   });
 });
 
