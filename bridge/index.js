@@ -241,6 +241,22 @@ app.post('/naf/oidc/token', async (req, res) => {
   }
 
   try {
+    // Cerca utente Keycloak per username (NAF coach name) per proporre il collegamento
+    let existingEmail;
+    try {
+      const adminToken = await getAdminToken();
+      const searchRes = await fetch(
+        `${KC_URL}/admin/realms/${KC_REALM}/users?username=${encodeURIComponent(entry.nafName)}&exact=true`,
+        { headers: { Authorization: `Bearer ${adminToken}` } }
+      );
+      if (searchRes.ok) {
+        const users = await searchRes.json();
+        if (users.length > 0) existingEmail = users[0].email;
+      }
+    } catch (e) {
+      console.warn('Ricerca utente KC fallita:', e.message);
+    }
+
     const accessToken = crypto.randomBytes(16).toString('hex');
     pending.set(`access_${accessToken}`, { nafId: entry.nafId, nafName: entry.nafName, ts: Date.now() });
 
@@ -248,6 +264,7 @@ app.post('/naf/oidc/token', async (req, res) => {
     const idToken = await new SignJWT({
       sub: String(entry.nafId),
       preferred_username: entry.nafName,
+      ...(existingEmail ? { email: existingEmail } : {}),
       naf_id: String(entry.nafId),
       naf_name: entry.nafName,
       naf_verified: 'true',
